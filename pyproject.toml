@@ -1,0 +1,22 @@
+[build-system]
+requires = ["briefcase ~= 0.4.0"]
+build-backend = "briefcase.integrations.briefcase_backend.build.system"
+
+[project]
+name = "zeta-app"
+version = "1.0.0"
+description = "Python Android App built with BeeWare"
+license = "MIT"
+requires-python = ">=3.10"
+
+[tool.briefcase]
+project_name = "Zeta App"
+bundle = "com.zeta"
+app_name = "zeta_app"
+description = "Python Android App built with BeeWare"
+license = "MIT"
+
+[tool.briefcase.app zeta_app]
+formal_name = "Zeta App"
+sources = ["src/zeta_app"]
+icon = "src/zeta_app/resources/zeta"

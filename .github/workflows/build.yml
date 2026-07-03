@@ -39,51 +39,13 @@ jobs:
 
       - name: Create buildozer.spec
         run: |
-          cat > buildozer.spec << 'SPEC'
-[app]
-title = ZetaApp
-package.name = zetaapp
-package.domain = org.zeta
-source.dir = .
-version = 1.0.0
-requirements = python3,kivy
-orientation = portrait
-fullscreen = 1
-[buildozer]
-log_level = 2
-warn_on_root = 1
-[kdroid]
-android_api = 33
-ndk_api = 25
-SPEC
+          printf '[app]\ntitle = ZetaApp\npackage.name = zetaapp\npackage.domain = org.zeta\nsource.dir = .\nversion = 1.0.0\nrequirements = python3,kivy\norientation = portrait\nfullscreen = 1\n\n[buildozer]\nlog_level = 2\nwarn_on_root = 1\n\n[kdroid]\nandroid_api = 33\nndk_api = 25\n' > buildozer.spec
+          cat buildozer.spec
 
       - name: Create main.py
         run: |
-          cat > main.py << 'APP'
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.core.window import Window
-
-class ZetaApp(App):
-    def build(self):
-        Window.clearcolor = (0.1, 0.1, 0.2, 1)
-        box = BoxLayout(orientation='vertical', padding=50, spacing=20)
-        box.add_widget(Label(text='[b]ZETA APP[/b]', markup=True, font_size='32sp', color=(0, 1, 0.5, 1)))
-        box.add_widget(Label(text='Python + Kivy', font_size='16sp'))
-        btn = Button(text='Klik Saya!', font_size='18sp')
-        btn.bind(on_press=self.hello)
-        box.add_widget(btn)
-        box.add_widget(Label(text='Ready!', font_size='14sp'))
-        return box
-
-    def hello(self, btn):
-        print('Hello!')
-
-if __name__ == '__main__':
-    ZetaApp().run()
-APP
+          printf 'from kivy.app import App\nfrom kivy.uix.boxlayout import BoxLayout\nfrom kivy.uix.label import Label\nfrom kivy.uix.button import Button\nfrom kivy.core.window import Window\n\nclass ZetaApp(App):\n    def build(self):\n        Window.clearcolor = (0.1, 0.1, 0.2, 1)\n        box = BoxLayout(orientation="vertical", padding=50, spacing=20)\n        box.add_widget(Label(text="ZETA APP", font_size="32sp"))\n        box.add_widget(Label(text="Python + Kivy", font_size="16sp"))\n        btn = Button(text="Klik Saya!", font_size="18sp")\n        btn.bind(on_press=self.hello)\n        box.add_widget(btn)\n        box.add_widget(Label(text="Ready!", font_size="14sp"))\n        return box\n    def hello(self, btn):\n        print("Hello!")\n\nif __name__ == "__main__":\n    ZetaApp().run()\n' > main.py
+          cat main.py
 
       - name: Build APK
         run: buildozer android debug

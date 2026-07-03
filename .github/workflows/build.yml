@@ -16,7 +16,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install system deps
-        run: sudo apt-get update && sudo apt-get install -y python3-pip python3-dev git zip unzip openjdk-17-jdk libffi-dev libssl-dev zlib1g-dev cmake wget
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-dev git zip unzip openjdk-17-jdk libffi-dev libssl-dev zlib1g-dev cmake wget
 
       - name: Install Python deps
         run: pip install kivy buildozer cython
@@ -34,58 +36,52 @@ jobs:
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
 
-      - name: Create files with Python
+      - name: Create buildozer.spec
         run: |
-          python3 << 'PYTHONEOF'
-# Create buildozer.spec
-spec = """[app]
-title = ZetaApp
-package.name = zetaapp
-package.domain = org.zeta
-source.dir = .
-version = 1.0.0
-requirements = python3,kivy
-orientation = portrait
-fullscreen = 1
-[buildozer]
-log_level = 2
-warn_on_root = 1
-[kdroid]
-android_api = 33
-ndk_api = 25
-"""
-with open('buildozer.spec', 'w') as f:
-    f.write(spec)
+          echo '[app]' > buildozer.spec
+          echo 'title = ZetaApp' >> buildozer.spec
+          echo 'package.name = zetaapp' >> buildozer.spec
+          echo 'package.domain = org.zeta' >> buildozer.spec
+          echo 'source.dir = .' >> buildozer.spec
+          echo 'version = 1.0.0' >> buildozer.spec
+          echo 'requirements = python3,kivy' >> buildozer.spec
+          echo 'orientation = portrait' >> buildozer.spec
+          echo 'fullscreen = 1' >> buildozer.spec
+          echo '' >> buildozer.spec
+          echo '[buildozer]' >> buildozer.spec
+          echo 'log_level = 2' >> buildozer.spec
+          echo 'warn_on_root = 1' >> buildozer.spec
+          echo '' >> buildozer.spec
+          echo '[kdroid]' >> buildozer.spec
+          echo 'android_api = 33' >> buildozer.spec
+          echo 'ndk_api = 25' >> buildozer.spec
+          cat buildozer.spec
 
-# Create main.py
-main_py = """from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.core.window import Window
-
-class ZetaApp(App):
-    def build(self):
-        Window.clearcolor = (0.1, 0.1, 0.2, 1)
-        box = BoxLayout(orientation='vertical', padding=50, spacing=20)
-        box.add_widget(Label(text='ZETA APP', font_size='32sp'))
-        box.add_widget(Label(text='Python + Kivy', font_size='16sp'))
-        btn = Button(text='Klik Saya!', font_size='18sp')
-        btn.bind(on_press=self.hello)
-        box.add_widget(btn)
-        box.add_widget(Label(text='Ready!', font_size='14sp'))
-        return box
-    def hello(self, btn):
-        print("Hello!")
-
-if __name__ == '__main__':
-    ZetaApp().run()
-"""
-with open('main.py', 'w') as f:
-    f.write(main_py)
-
-print("Files created successfully!")
-PYTHONEOF
+      - name: Create main.py
+        run: |
+          echo 'from kivy.app import App' > main.py
+          echo 'from kivy.uix.boxlayout import BoxLayout' >> main.py
+          echo 'from kivy.uix.label import Label' >> main.py
+          echo 'from kivy.uix.button import Button' >> main.py
+          echo 'from kivy.core.window import Window' >> main.py
+          echo '' >> main.py
+          echo 'class ZetaApp(App):' >> main.py
+          echo '    def build(self):' >> main.py
+          echo '        Window.clearcolor = (0.1, 0.1, 0.2, 1)' >> main.py
+          echo '        box = BoxLayout(orientation="vertical", padding=50, spacing=20)' >> main.py
+          echo '        box.add_widget(Label(text="ZETA APP", font_size="32sp"))' >> main.py
+          echo '        box.add_widget(Label(text="Python + Kivy", font_size="16sp"))' >> main.py
+          echo '        btn = Button(text="Klik Saya!", font_size="18sp")' >> main.py
+          echo '        btn.bind(on_press=self.hello)' >> main.py
+          echo '        box.add_widget(btn)' >> main.py
+          echo '        box.add_widget(Label(text="Ready!", font_size="14sp"))' >> main.py
+          echo '        return box' >> main.py
+          echo '    def hello(self, btn):' >> main.py
+          echo '        print("Hello!")' >> main.py
+          echo '' >> main.py
+          echo 'if __name__ == "__main__":' >> main.py
+          echo '    ZetaApp().run()' >> main.py
+          cat main.py
 
       - name: Build APK
         run: buildozer android debug

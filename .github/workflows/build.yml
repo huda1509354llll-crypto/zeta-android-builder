@@ -16,30 +16,40 @@ jobs:
           python-version: "3.11"
 
       - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y python3-pip git openjdk-17-jdk
+        run: sudo apt-get update && sudo apt-get install -y openjdk-17-jdk
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api: 33
 
       - name: Install Python deps
         run: pip install kivy buildozer cython
 
-      - name: Setup Android SDK with licenses
-        uses: android-actions/setup-android@v3
-        with:
-          api: 33
-          tools: true
-
-      - name: Create buildozer.spec
-        run: |
-          printf '%s\n' '[app]' 'title = ZetaApp' 'package.name = zetaapp' 'package.domain = org.zeta' 'source.dir = .' 'version = 1.0.0' 'requirements = python3,kivy' 'orientation = portrait' 'fullscreen = 1' > buildozer.spec
-
-      - name: Create main.py
-        run: |
-          printf '%s\n' 'from kivy.app import App' 'from kivy.uix.boxlayout import BoxLayout' 'from kivy.uix.label import Label' 'from kivy.uix.button import Button' 'from kivy.core.window import Window' '' 'class ZetaApp(App):' '    def build(self):' '        Window.clearcolor = (0.1, 0.1, 0.2, 1)' '        box = BoxLayout(orientation="vertical", padding=50, spacing=20)' '        box.add_widget(Label(text="ZETA APP", font_size="32sp"))' '        box.add_widget(Label(text="Python + Kivy", font_size="16sp"))' '        btn = Button(text="Klik Saya!", font_size="18sp")' '        btn.bind(on_press=self.hello)' '        box.add_widget(btn)' '        box.add_widget(Label(text="Ready!", font_size="14sp"))' '        return box' '    def hello(self, btn):' '        print("Hello!")' '' 'if __name__ == "__main__":' '    ZetaApp().run()' > main.py
-
       - name: Build APK
-        run: buildozer android debug
+        env:
+          ANDROID_HOME: /opt/android-sdk
+        run: |
+          mkdir -p /opt/android-sdk/licenses
+          echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > /opt/android-sdk/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > /opt/android-sdk/licenses/android-sdk-preview-license
+          export ANDROID_HOME=/opt/android-sdk
+          export ANDROID_SDK_ROOT=/opt/android-sdk
+          echo "Kivy App" > main.py
+          echo "[app]" > buildozer.spec
+          echo "title = ZetaApp" >> buildozer.spec
+          echo "package.name = zetaapp" >> buildozer.spec
+          echo "source.dir = ." >> buildozer.spec
+          echo "version = 1.0.0" >> buildozer.spec
+          echo "requirements = python3,kivy" >> buildozer.spec
+          echo "orientation = portrait" >> buildozer.spec
+          printf '\nfrom kivy.app import App\nfrom kivy.uix.boxlayout import BoxLayout\nfrom kivy.uix.label import Label\nfrom kivy.uix.button import Button\n\nclass ZetaApp(App):\n    def build(self):\n        box = BoxLayout(orientation="vertical", padding=20)\n        box.add_widget(Label(text="ZETA APP"))\n        btn = Button(text="Klik Saya!")\n        btn.bind(on_press=lambda x: None)\n        box.add_widget(btn)\n        return box\n\nif __name__ == "__main__":\n    ZetaApp().run()\n' > main.py
+          buildozer android debug
+          find . -name "*.apk" -type f
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: zeta-app
+          name: zeta-apk
           path: .buildozer/**/*.apk

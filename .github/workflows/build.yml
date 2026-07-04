@@ -16,9 +16,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install system deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip python3-dev git zip unzip openjdk-17-jdk libffi-dev libssl-dev zlib1g-dev cmake wget
+        run: sudo apt-get update && sudo apt-get install -y python3-pip python3-dev git zip unzip openjdk-17-jdk libffi-dev libssl-dev zlib1g-dev cmake wget
 
       - name: Install Python deps
         run: pip install kivy buildozer cython
@@ -32,7 +30,7 @@ jobs:
           mkdir -p latest
           mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/NOTICE.txt cmdline-tools/source.properties latest/ 2>/dev/null || true
           yes | latest/bin/sdkmanager --licenses
-          latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;25b"
+          latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;26b"
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
 
@@ -54,7 +52,7 @@ jobs:
           echo '' >> buildozer.spec
           echo '[kdroid]' >> buildozer.spec
           echo 'android_api = 33' >> buildozer.spec
-          echo 'ndk_api = 25' >> buildozer.spec
+          echo 'ndk_api = 26' >> buildozer.spec
           cat buildozer.spec
 
       - name: Create main.py

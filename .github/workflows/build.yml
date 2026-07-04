@@ -21,6 +21,14 @@ jobs:
       - name: Install Python deps
         run: pip install kivy buildozer cython
 
+      - name: Accept Android SDK licenses
+        run: |
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          mkdir -p ~/.local/share/android-sdk/licenses
+          printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.local/share/android-sdk/licenses/android-sdk-license
+          printf "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.local/share/android-sdk/licenses/android-sdk-preview-license
+
       - name: Create buildozer.spec
         run: |
           echo '[app]' > buildozer.spec

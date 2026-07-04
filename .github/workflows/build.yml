@@ -23,7 +23,11 @@ jobs:
 
       - name: Accept Android SDK licenses
         run: |
-          mkdir -p $HOME/.android && touch $HOME/.android/repositories.cfg && mkdir -p $HOME/.local/share/android-sdk/licenses && echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd975f751698a77b662f1254ddbeed3901e976f5a" > $HOME/.android/licenses/android-sdk-license && echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/.android/licenses/android-sdk-preview-license && cp $HOME/.android/licenses/* $HOME/.local/share/android-sdk/licenses/ && mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses && cp $HOME/.android/licenses/* $HOME/.buildozer/android/platform/android-sdk/licenses/
+          mkdir -p /home/runner/.android/licenses
+          touch /home/runner/.android/repositories.cfg
+          echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd975f751698a77b662f1254ddbeed3901e976f5a" > /home/runner/.android/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > /home/runner/.android/licenses/android-sdk-preview-license
+          cat /home/runner/.android/licenses/android-sdk-license
 
       - name: Create buildozer.spec
         run: |
@@ -40,29 +44,30 @@ jobs:
 
       - name: Create main.py
         run: |
-          echo 'from kivy.app import App' > main.py
-          echo 'from kivy.uix.boxlayout import BoxLayout' >> main.py
-          echo 'from kivy.uix.label import Label' >> main.py
-          echo 'from kivy.uix.button import Button' >> main.py
-          echo 'from kivy.core.window import Window' >> main.py
-          echo '' >> main.py
-          echo 'class ZetaApp(App):' >> main.py
-          echo '    def build(self):' >> main.py
-          echo '        Window.clearcolor = (0.1, 0.1, 0.2, 1)' >> main.py
-          echo '        box = BoxLayout(orientation="vertical", padding=50, spacing=20)' >> main.py
-          echo '        box.add_widget(Label(text="ZETA APP", font_size="32sp"))' >> main.py
-          echo '        box.add_widget(Label(text="Python + Kivy", font_size="16sp"))' >> main.py
-          echo '        btn = Button(text="Klik Saya!", font_size="18sp")' >> main.py
-          echo '        btn.bind(on_press=self.hello)' >> main.py
-          echo '        box.add_widget(btn)' >> main.py
-          echo '        box.add_widget(Label(text="Ready!", font_size="14sp"))' >> main.py
-          echo '        return box' >> main.py
-          echo '    def hello(self, btn):' >> main.py
-          echo '        print("Hello!")' >> main.py
-          echo '' >> main.py
-          echo 'if __name__ == "__main__":' >> main.py
-          echo '    ZetaApp().run()' >> main.py
-          cat main.py
+          cat > main.py << 'PYEOF'
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.core.window import Window
+
+class ZetaApp(App):
+    def build(self):
+        Window.clearcolor = (0.1, 0.1, 0.2, 1)
+        box = BoxLayout(orientation='vertical', padding=50, spacing=20)
+        box.add_widget(Label(text='ZETA APP', font_size='32sp'))
+        box.add_widget(Label(text='Python + Kivy', font_size='16sp'))
+        btn = Button(text='Klik Saya!', font_size='18sp')
+        btn.bind(on_press=self.hello)
+        box.add_widget(btn)
+        box.add_widget(Label(text='Ready!', font_size='14sp'))
+        return box
+    def hello(self, btn):
+        print("Hello!")
+
+if __name__ == '__main__':
+    ZetaApp().run()
+PYEOF
 
       - name: Build APK
         run: buildozer android debug

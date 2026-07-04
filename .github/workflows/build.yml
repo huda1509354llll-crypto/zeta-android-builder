@@ -22,9 +22,12 @@ jobs:
         run: pip install kivy buildozer cython
 
       - name: Setup Android SDK
+        env:
+          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
+          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
         run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd $HOME/android-sdk/cmdline-tools
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
           unzip -o cmdline-tools.zip
           mkdir -p latest
@@ -32,7 +35,8 @@ jobs:
           mv cmdline-tools latest
           yes | latest/bin/sdkmanager --licenses
           latest/bin/sdkmanager "platforms;android-33" "build-tools;37.0.0"
-          ls -la $HOME/android-sdk/
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
 
       - name: Create buildozer.spec
         run: |
@@ -45,10 +49,6 @@ jobs:
           echo 'requirements = python3,kivy' >> buildozer.spec
           echo 'orientation = portrait' >> buildozer.spec
           echo 'fullscreen = 1' >> buildozer.spec
-          echo '' >> buildozer.spec
-          echo '[buildozer]' >> buildozer.spec
-          echo 'log_level = 2' >> buildozer.spec
-          echo 'warn_on_root = 1' >> buildozer.spec
           cat buildozer.spec
 
       - name: Create main.py
@@ -78,11 +78,10 @@ jobs:
           cat main.py
 
       - name: Build APK
-        run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          buildozer android debug
+        env:
+          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
+          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+        run: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

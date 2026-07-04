@@ -21,23 +21,6 @@ jobs:
       - name: Install Python deps
         run: pip install kivy buildozer cython
 
-      - name: Setup Android SDK
-        env:
-          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
-          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
-        run: |
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          cd $ANDROID_HOME/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
-          unzip -o cmdline-tools.zip
-          mkdir -p latest
-          rm -rf latest
-          mv cmdline-tools latest
-          yes | latest/bin/sdkmanager --licenses
-          latest/bin/sdkmanager "platforms;android-33" "build-tools;37.0.0"
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-
       - name: Create buildozer.spec
         run: |
           echo '[app]' > buildozer.spec
@@ -78,9 +61,6 @@ jobs:
           cat main.py
 
       - name: Build APK
-        env:
-          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
-          ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
         run: buildozer android debug
 
       - name: Upload APK

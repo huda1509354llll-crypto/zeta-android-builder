@@ -29,10 +29,8 @@ jobs:
           unzip cmdline-tools.zip
           mkdir -p latest
           mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/NOTICE.txt cmdline-tools/source.properties latest/ 2>/dev/null || true
-          yes | latest/bin/sdkmanager --licenses
-          latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2"
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          yes | latest/bin/sdkmanager --licenses || true
+          latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0"
 
       - name: Create buildozer.spec
         run: |
@@ -49,6 +47,10 @@ jobs:
           echo '[buildozer]' >> buildozer.spec
           echo 'log_level = 2' >> buildozer.spec
           echo 'warn_on_root = 1' >> buildozer.spec
+          echo '' >> buildozer.spec
+          echo '[kdroid]' >> buildozer.spec
+          echo 'android_api = 33' >> buildozer.spec
+          echo 'android.min_api = 21' >> buildozer.spec
           cat buildozer.spec
 
       - name: Create main.py
@@ -78,7 +80,10 @@ jobs:
           cat main.py
 
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

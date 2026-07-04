@@ -30,7 +30,7 @@ jobs:
           mkdir -p latest
           mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/NOTICE.txt cmdline-tools/source.properties latest/ 2>/dev/null || true
           yes | latest/bin/sdkmanager --licenses || true
-          latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.0"
+          latest/bin/sdkmanager "platforms;android-33" "build-tools;37.0.0"
 
       - name: Create buildozer.spec
         run: |
@@ -83,6 +83,7 @@ jobs:
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           buildozer android debug
 
       - name: Upload APK
